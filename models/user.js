@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
+    static associate(models) {
+      this.hasMany(models.Course, {
+        as: 'user',
+      });
+    }
   }
   User.init(
     {
@@ -70,21 +75,23 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
+
       password: {
         type: DataTypes.STRING,
         allowNull: false,
-        // validate: {
-        //   isNull: {
-        //     msg: 'Please provide a password',
-        //   },
-        //   notEmpty: {
-        //     msg: 'Please provide a password',
-        //   },
-        //   len: {
-        //     arg: [8, 35],
-        //     msg: 'password should atleast be 8 charachters long',
-        //   },
-        // },
+        validate: {
+          notNull: {
+            msg: 'please provide a password',
+          },
+          notEmpty: {
+            msg: 'please provide a password',
+          },
+          // len: {
+          //   args: [8, 30],
+          //   msg: 'password should be atleast 8 characters long',
+          // },
+        },
+
         set(val) {
           const hashedPassword = bcrypt.hashSync(val, 10);
           this.setDataValue('password', hashedPassword);
@@ -97,14 +104,5 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  User.associate = (models) => {
-    User.hasMany(models.Course, {
-      as: 'user',
-      foreignKey: {
-        fieldName: 'userID',
-        allowNull: false,
-      },
-    });
-  };
   return User;
 };

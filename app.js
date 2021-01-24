@@ -4,7 +4,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const { sequelize } = require('./models/index');
-const apiUsers = require('./routes/api/users');
+const api = require('./routes/api');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging =
@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // API router
-app.use('/api', apiUsers);
+app.use('/api', api);
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {

@@ -9,6 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      this.belongsTo(models.User, {
+        as: 'user',
+      });
     }
   }
   Course.init(
@@ -35,11 +38,6 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: {
             msg: 'Please provide a description.',
           },
-          len: {
-            args: [100, 500],
-            msg:
-              'Description should be more and than 100 charachters and less than 500.',
-          },
         },
       },
       estimatedTime: {
@@ -54,12 +52,6 @@ module.exports = (sequelize, DataTypes) => {
       modelName: 'Course',
     }
   );
-  Course.associate = (models) => {
-    Course.belongsTo(models.User, {
-      as: 'user',
-      foreignKey: { fieldName: 'userID', allowNull: false },
-    });
-  };
 
   return Course;
 };

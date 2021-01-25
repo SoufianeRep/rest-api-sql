@@ -55,6 +55,11 @@ router.get(
     try {
       const courses = await Course.findAll({
         attributes: { exclude: ['userId', 'createdAt', 'updatedAt'] },
+        include: {
+          model: User,
+          as: 'user',
+          attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+        },
       });
       res.json(courses);
     } catch (error) {}
@@ -82,7 +87,6 @@ router.get(
         throw new Error('The Course you are looking for cannot be found');
       }
     } catch (error) {
-      console.log(error.name);
       res.status(404).json({ message: error.message });
     }
   })
@@ -93,13 +97,11 @@ router.post(
   '/courses',
   authenticateUser,
   asyncHandler(async (req, res) => {
-    console.log(req.body);
     try {
       const course = await Course.create(req.body);
       res.location(`/courses/${course.id}`);
       res.status(201).json({ message: 'Course created successfully' });
     } catch (error) {
-      console.log(error.name);
       if (error.name === 'SequelizeValidationError') {
         const errors = error.errors.map((x) => x.message);
         res.status(400).json({ errors });
@@ -134,10 +136,7 @@ router.put(
         );
       }
     } catch (error) {
-      if (
-        error.name === 'SequelizeValidationError' ||
-        error.name === 'SequelizeUniqueConstraintError'
-      ) {
+      if (error.name === 'SequelizeValidationError') {
         const errors = error.errors.map((x) => x.message);
         res.status(400).json({ errors });
       } else {

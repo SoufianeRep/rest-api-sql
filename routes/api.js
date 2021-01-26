@@ -4,7 +4,9 @@ const { asyncHandler } = require('../middleware/async-handler');
 const { authenticateUser } = require('../middleware/basic-auth');
 const { User, Course } = require('../models');
 
-// USERS ROUTES
+//===================================
+//COURSES ROUTES//
+//===================================
 // GET route that will return the currently authenticated user
 // along with a 200 HTTP status code.
 router.get(
@@ -12,10 +14,10 @@ router.get(
   authenticateUser,
   asyncHandler(async (req, res, next) => {
     try {
-      const users = await User.findAll({
+      const user = await User.findByPk(req.loggedUser.id, {
         attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
       });
-      res.json({ users });
+      res.json({ user });
     } catch (error) {
       throw error;
     }
@@ -29,7 +31,8 @@ router.post(
   asyncHandler(async (req, res, next) => {
     try {
       await User.create(req.body);
-      res.status(201).json({ message: 'User Created successfully' });
+      res.location('/');
+      res.status(201).end();
     } catch (error) {
       if (
         error.name === 'SequelizeValidationError' ||
@@ -100,7 +103,7 @@ router.post(
     try {
       const course = await Course.create(req.body);
       res.location(`/courses/${course.id}`);
-      res.status(201).json({ message: 'Course created successfully' });
+      res.status(201).end();
     } catch (error) {
       if (error.name === 'SequelizeValidationError') {
         const errors = error.errors.map((x) => x.message);
@@ -117,7 +120,6 @@ router.put(
   '/courses/:id',
   authenticateUser,
   asyncHandler(async (req, res) => {
-    // console.log(req.loggedUser.id);
     try {
       const course = await Course.findByPk(req.params.id);
       if (course) {
